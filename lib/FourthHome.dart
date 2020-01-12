@@ -1,22 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:church2go/Model/charity.dart';
+import 'package:flutter/services.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:church2go/PreferencesUtil/PrefUtil.dart';
+import 'package:church2go/RequestUtil/RequestUtil.dart';
 
 class FourthHome extends StatefulWidget {
   Fourth createState() => new Fourth();
 }
 
 class Fourth extends State<FourthHome> {
+  String id;
+  PrefUtil _prefUtil = PrefUtil();
+  RequestUtl _requestUtl = RequestUtl();
   TextEditingController inputcontroller1 = TextEditingController();
   TextEditingController inputcontroller2 = TextEditingController();
   TextEditingController inputcontroller3 = TextEditingController();
   TextEditingController inputcontroller4 = TextEditingController();
   TextEditingController inputcontroller5 = TextEditingController();
+  TextEditingController inputcontroller6 = TextEditingController();
+  List<String> message =['Data Saved','Data Not Save \n Please Check your Internet'];
   final formKey = new GlobalKey<FormState>();
   ScrollController _sc;
 
-  validateDonate() {
+  @override
+  initState(){
+    super.initState();
+    initialize();
+    setState(() {
+      inputcontroller4.text = DateTime.now().toString();
+    });
+  }
+  void initialize() async {
+    id = await _prefUtil.getId();
+  }
+
+  validateSubmit() async {
     if (formKey.currentState.validate()) {
       formKey.currentState.save();
-      Navigator.pop(context, '/second');
+      Charity charity = Charity(null, id, inputcontroller1.text, inputcontroller2.text, inputcontroller3.text, 
+                                inputcontroller4.text, inputcontroller5.text, inputcontroller6.text);
+      await _requestUtl.charity(charity, context)?showResultDialog(message[0]):showResultDialog(message[1]);
+    }
+  }
+  Future<bool> showResultDialog(String msg){
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context){
+        return AlertDialog(
+          elevation: 5.0,
+          content: Container(
+            height: MediaQuery.of(context).size.height*.04,
+            child: Center(child: Text(msg,style: TextStyle(fontSize: 30),))
+            ),
+          actions: <Widget>[
+            FlatButton(
+              child: Container(child: Text('Ok'),),
+              onPressed: (){Navigator.pop(context);clrtext();},
+            ),
+          ],
+        );
+      }
+    );
+  }
+  
+  void clrtext(){
+    inputcontroller1.text = '';inputcontroller2.text = '';inputcontroller3.text = '';
+    inputcontroller4.text = '';inputcontroller5.text = '';inputcontroller6.text = '';
+  }
+
+  DateTime checkdateFormat(){
+    try{
+      return DateTime.parse(inputcontroller6.text);
+    } catch (e){
+      return DateTime.now();
+    }
+  }
+  
+  void showDTpicker() async {
+    DateTime currentValue = checkdateFormat();
+    final date = await showDatePicker(
+      context: context,
+      firstDate: DateTime(1900),
+      initialDate: currentValue ?? DateTime.now(),
+      lastDate: DateTime(2100)
+    );
+    if (date != null) {
+      final time = await showTimePicker(
+      context: context,
+      initialTime:
+      TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+    );
+      inputcontroller4.text = DateTimeField.combine(date, time).toString();
+          } else {
+            inputcontroller4.text = currentValue.toString();
+          }
+  }
+
+  String validateDateTime(){
+    try{
+      DateTime.parse(inputcontroller4.text);
+      return null;
+    } catch (e){
+      return 'invalid Datetime';
     }
   }
 
@@ -81,10 +168,31 @@ class Fourth extends State<FourthHome> {
                           val.length == 0 ? 'Enter Purpose' : null,
                     ),
                   ),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          child: TextFormField(
+                            style: TextStyle(fontSize: 14.0),
+                            keyboardType: TextInputType.datetime,
+                            controller: inputcontroller4,
+                            decoration: InputDecoration(labelText: 'Reserve Date and Time (yyyy-MM-dd HH:mm)'),
+                            validator: (val) => validateDateTime(),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        child: IconButton(
+                          icon: Icon(Icons.date_range),
+                          onPressed: (){showDTpicker();},
+                        ),
+                      ),
+                    ],
+                  ),
                   Container(
                       width: 120,
                       child: RaisedButton(
-                          onPressed: validateDonate,
+                          onPressed: validateSubmit,
                           color: Colors.grey,
                           textColor: Colors.white,
                           child: Text(

@@ -1,11 +1,29 @@
 
+import 'package:church2go/PreferencesUtil/PrefUtil.dart';
 import 'package:flutter/material.dart';
 
-class SecondHome extends StatelessWidget {
-  /*Second createState() => new Second();
+class SecondHome extends StatefulWidget {
+  Second createState() => new Second();
 }
-class Second extends State<SecondHome>{*/
+class Second extends State<SecondHome>{
+  PrefUtil pref = PrefUtil();
+  String firstname,lastname,church,email;
 
+  Second(){
+    initialize();
+  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   initialize();
+  // }
+  void initialize()async{
+    firstname = await pref.getFirstName();
+    lastname = await pref.getLastName();
+    church = await pref.getChurch();
+    email = await pref.getEmail();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,14 +43,40 @@ class Second extends State<SecondHome>{*/
           child: ListView(
             children: <Widget>[
               DrawerHeader(
-                child: Text('Church 2 Go',
-                    style: new TextStyle(
-                        fontSize: 40.00,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.yellow[50])),
-                decoration: BoxDecoration(
-                  color:Color.fromRGBO(216, 128, 253, 0.6),
-                ),
+                padding: EdgeInsets.all(0),
+                child: Container(
+                  color: Color.fromRGBO(216, 128, 253, 0.6),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.all(5),
+                        child: Text('Church 2 Go',
+                          style: new TextStyle(
+                          fontSize: 60.00,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.yellow[50])),
+                      ),
+                       Container(
+                        child: Text(firstname+' '+lastname,
+                          style: new TextStyle(
+                          fontSize: 20.00,
+                          color: Colors.yellow[50])),
+                      ),
+                       Container(
+                        child: Text('Church : '+church,
+                          style: new TextStyle(
+                          fontSize: 20.00,
+                          color: Colors.yellow[50])),
+                      ),
+                       Container(
+                        child: Text('Email : '+email,
+                          style: new TextStyle(
+                          fontSize: 20.00,
+                          color: Colors.yellow[50])),
+                      ),
+                    ],
+                  ),
+                )
               ),
               ListTile(
                 leading: Icon(Icons.calendar_today, color: Colors.blue,),
@@ -78,6 +122,7 @@ class Second extends State<SecondHome>{*/
                 leading: Icon(Icons.exit_to_app, color: Colors.blue,),
                 title: Text('Logout', style: TextStyle(fontSize: 20)),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.popAndPushNamed(context,'/');
                 },
               ),

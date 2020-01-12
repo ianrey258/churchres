@@ -1,3 +1,4 @@
+import 'package:church2go/Registration.dart';
 import 'package:flutter/material.dart';
 import 'Baptism.dart';
 import 'Confirmation.dart';
@@ -11,6 +12,7 @@ import 'Wedding.dart';
 import 'Matthew.dart';
 import 'Blessings.dart';
 import 'Mark.dart';
+import 'package:church2go/RequestUtil/RequestUtil.dart';
 
 void main() {
   runApp(Main());
@@ -22,6 +24,7 @@ class Main extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Church 2 Go',
       theme: ThemeData(primarySwatch: Colors.teal),
+      initialRoute: '/',
       routes: <String, WidgetBuilder>{
         '/': (context) => HomeScreen(),
         '/second': (context) => SecondHome(),
@@ -30,12 +33,13 @@ class Main extends StatelessWidget {
         '/fifth': (context) => FifthHome(),
         '/sixth': (context) => SixthHome(),
         '/seventh': (context) => SeventhHome(),
-        '/confirm': (context) => Confirmation(),
-        '/wed': (context) => Wedding(),
+        '/confirm': (context) => ConfirmationNav(),
+        '/wed': (context) => WeddingSc(),
         '/bap': (context) => Baptism(),
         '/bless': (context) => Blessings(),
         '/matthew': (context) => Matthew(),
         '/mark': (context) => Mark(),
+        '/registration': (context) => Registration(),
       },
     );
   }
@@ -46,23 +50,60 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HS extends State<HomeScreen>{
+  RequestUtl _requestUtl = new RequestUtl();
   TextEditingController inputcontroller1 = TextEditingController();
   TextEditingController inputcontroller2 = TextEditingController();
   final formKey = new GlobalKey<FormState>();
+  List<String> validateMsg = ['Username and Password Not Match','Please Check your Internet Connection'];
   ScrollController _sc;
 
-  validateLogin(){
+  validateLogin() async {
     if(formKey.currentState.validate()){
       formKey.currentState.save();
-      Navigator.popAndPushNamed(context, '/second');
+      String result = await _requestUtl.login(inputcontroller1.text, inputcontroller2.text,context);
+      if(result == 'null'){
+        showResultDialog(validateMsg[0]);
+      } else if(result == 'No Connection'){
+        showResultDialog(validateMsg[1]);
+      } else {
+        Navigator.popAndPushNamed(context, '/second');
+      }
     }
   }
-  
-  validateRegister(){
-    if(formKey.currentState.validate()){
-      formKey.currentState.save();
-      Navigator.popAndPushNamed(context, '/second');
-    }
+  Future<bool> showResultDialog(String msg){
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context){
+        return AlertDialog(
+          elevation: 5.0,
+          content: Container(
+            height: MediaQuery.of(context).size.height*.10,
+            child: Center(child: Text(msg,style: TextStyle(fontSize: 20),textAlign: TextAlign.center,))
+            ),
+          actions: <Widget>[
+            FlatButton(
+              child: Container(child: Text('Ok'),),
+              onPressed: msg.endsWith(msg[0]) ? regFailed : regSuccess,
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  regFailed(){
+    Navigator.pop(context);
+  }
+  regSuccess(){
+    Navigator.pop(context);
+    Navigator.pop(context);
+    clearTxt();
+  }
+  clearTxt(){
+    setState(() {
+      inputcontroller1.text='';inputcontroller2.text='';
+    });
   }
 
   @override
@@ -100,18 +141,19 @@ class HS extends State<HomeScreen>{
                       child: TextFormField(
                         keyboardType: TextInputType.text,
                         controller: inputcontroller1,
-                        decoration: InputDecoration(labelText: 'Firstame'),
-                        validator: (val) => val.length == 0 ? 'Enter FirstName' : null,
+                        decoration: InputDecoration(labelText: 'Username'),
+                        validator: (val) => val.length == 0 ? 'Invalid Username' : null,
                       ),
                     ),
                     Container(
                       margin: EdgeInsets.fromLTRB(20,10,20,10),
                       color: Color.fromRGBO(223, 223, 223, .7),
                       child: TextFormField(
-                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        keyboardType: TextInputType.visiblePassword,
                         controller: inputcontroller2,
-                        decoration: InputDecoration(labelText: 'LastName'),
-                        validator: (val) => val.length == 0 ? 'Enter LastName' : null,
+                        decoration: InputDecoration(labelText: 'Password'),
+                        validator: (val) => val.length == 0 ? 'Invalid Password' : null,
                       ),
                     ),
                     Row(
@@ -136,7 +178,7 @@ class HS extends State<HomeScreen>{
                           child: Container(
                             margin: EdgeInsets.all(5),
                             child: RaisedButton(
-                              onPressed: validateRegister,
+                              onPressed: ()=>Navigator.pushNamed(context, '/registration'),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(150.0)
                                 ),

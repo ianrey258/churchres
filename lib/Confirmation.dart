@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:church2go/Model/confirmation.dart';
+import 'package:church2go/PreferencesUtil/PrefUtil.dart';
+import 'package:church2go/RequestUtil/RequestUtil.dart';
 
-class Confirmation extends StatefulWidget {
+class ConfirmationNav extends StatefulWidget {
   Confirm createState() => new Confirm();
 }
 
-class Confirm extends State<Confirmation> {
+class Confirm extends State<ConfirmationNav> {
+
+  String id;
+  PrefUtil _prefUtil = PrefUtil();
+  RequestUtl _requestUtl = RequestUtl();
   TextEditingController inputcontroller1 = TextEditingController();
   TextEditingController inputcontroller2 = TextEditingController();
   TextEditingController inputcontroller3 = TextEditingController();
@@ -12,14 +19,54 @@ class Confirm extends State<Confirmation> {
   TextEditingController inputcontroller5 = TextEditingController();
   TextEditingController inputcontroller6 = TextEditingController();
   TextEditingController inputcontroller7 = TextEditingController();
+  List<String> message =['Data Saved','Data Not Save \n Please Check your Internet'];
   final formKey = new GlobalKey<FormState>();
   ScrollController _sc;
+  
+  @override
+  initState(){
+    super.initState();
+    initialize();
+  }
+  void initialize() async {
+    id = await _prefUtil.getId();
+  }
 
-  validateSubmit() {
+  validateSubmit() async{
     if (formKey.currentState.validate()) {
       formKey.currentState.save();
-      Navigator.pop(context, '/third');
+      Confirmation confirm = Confirmation(null, id, inputcontroller1.text, inputcontroller2.text,
+       inputcontroller3.text, inputcontroller4.text, inputcontroller5.text, inputcontroller6.text, inputcontroller7.text, null);
+      await _requestUtl.confirmation(confirm, context)?showResultDialog(message[0]):showResultDialog(message[1]);
     }
+  }
+
+  Future<bool> showResultDialog(String msg){
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context){
+        return AlertDialog(
+          elevation: 5.0,
+          content: Container(
+            height: MediaQuery.of(context).size.height*.04,
+            child: Center(child: Text(msg,style: TextStyle(fontSize: 30),))
+            ),
+          actions: <Widget>[
+            FlatButton(
+              child: Container(child: Text('Ok'),),
+              onPressed: (){Navigator.pop(context);clrtext();},
+            ),
+          ],
+        );
+      }
+    );
+  }
+  
+  void clrtext(){
+    inputcontroller1.text = '';inputcontroller2.text = '';inputcontroller3.text = '';
+    inputcontroller4.text = '';inputcontroller5.text = '';inputcontroller6.text = '';
+    inputcontroller7.text = '';
   }
 
   @override
