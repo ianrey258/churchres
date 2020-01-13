@@ -67,6 +67,7 @@ class PrefUtil implements PrefMethods{
 
   Future<void> resetPref() async{
     SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.remove('id');
     pref.clear();
   }
 

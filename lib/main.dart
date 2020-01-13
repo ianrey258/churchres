@@ -1,3 +1,4 @@
+import 'package:church2go/PreferencesUtil/PrefUtil.dart';
 import 'package:church2go/Registration.dart';
 import 'package:flutter/material.dart';
 import 'Baptism.dart';
@@ -15,16 +16,26 @@ import 'Mark.dart';
 import 'package:church2go/RequestUtil/RequestUtil.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(Main());
 }
 
 class Main extends StatelessWidget {
+  PrefUtil _prefUtil =PrefUtil();
+  String home;
+
+  Main(){
+    init();
+  }
+  init()async{
+    home = await _prefUtil.getId() != null?home = '/second':'/';
+  }
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Church 2 Go',
       theme: ThemeData(primarySwatch: Colors.teal),
-      initialRoute: '/',
+      initialRoute: home,
       routes: <String, WidgetBuilder>{
         '/': (context) => HomeScreen(),
         '/second': (context) => SecondHome(),

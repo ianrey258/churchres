@@ -10,18 +10,25 @@ class Second extends State<SecondHome>{
   String firstname,lastname,church,email;
 
   Second(){
+    initState();
+  }
+
+  @override
+  void initState() {
+    super.initState();
     initialize();
   }
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   initialize();
-  // }
-  void initialize()async{
-    firstname = await pref.getFirstName();
-    lastname = await pref.getLastName();
-    church = await pref.getChurch();
-    email = await pref.getEmail();
+  void initialize() async {
+    String firstname1 = await pref.getFirstName();
+    String lastname1 = await pref.getLastName();
+    String church1 = await pref.getChurch();
+    String email1 = await pref.getEmail();
+    setState(() {
+      firstname =firstname1;
+      lastname =lastname1;
+      church = church1;
+      email = email1;
+    });
   }
   
   @override
@@ -121,7 +128,8 @@ class Second extends State<SecondHome>{
               ListTile(
                 leading: Icon(Icons.exit_to_app, color: Colors.blue,),
                 title: Text('Logout', style: TextStyle(fontSize: 20)),
-                onTap: () {
+                onTap: () async {
+                  await pref.resetPref();
                   Navigator.pop(context);
                   Navigator.popAndPushNamed(context,'/');
                 },

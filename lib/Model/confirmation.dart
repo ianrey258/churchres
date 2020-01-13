@@ -21,7 +21,6 @@ class Confirmation{
       'gender':gender,
       'participantFname':participantFname,
       'participantLname':participantLname,
-      'datetime':datetime,
     };
   }
   

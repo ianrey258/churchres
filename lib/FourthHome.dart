@@ -28,7 +28,7 @@ class Fourth extends State<FourthHome> {
     super.initState();
     initialize();
     setState(() {
-      inputcontroller4.text = DateTime.now().toString();
+      inputcontroller6.text = DateTime.now().toString();
     });
   }
   void initialize() async {
@@ -92,15 +92,15 @@ class Fourth extends State<FourthHome> {
       initialTime:
       TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
     );
-      inputcontroller4.text = DateTimeField.combine(date, time).toString();
+      inputcontroller6.text = DateTimeField.combine(date, time).toString();
           } else {
-            inputcontroller4.text = currentValue.toString();
+            inputcontroller6.text = currentValue.toString();
           }
   }
 
   String validateDateTime(){
     try{
-      DateTime.parse(inputcontroller4.text);
+      DateTime.parse(inputcontroller6.text);
       return null;
     } catch (e){
       return 'invalid Datetime';
@@ -175,7 +175,7 @@ class Fourth extends State<FourthHome> {
                           child: TextFormField(
                             style: TextStyle(fontSize: 14.0),
                             keyboardType: TextInputType.datetime,
-                            controller: inputcontroller4,
+                            controller: inputcontroller6,
                             decoration: InputDecoration(labelText: 'Reserve Date and Time (yyyy-MM-dd HH:mm)'),
                             validator: (val) => validateDateTime(),
                           ),
